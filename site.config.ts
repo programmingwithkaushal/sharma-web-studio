@@ -24,7 +24,7 @@ export const siteConfig = {
   tagline: "We Build High-Converting Websites for Local Businesses",
   description:
     "Founded by Kaushal Sharma & Akhilesh Sharma. We help local shops, clinics, restaurants, and service providers dominate Google, attract more walk-in customers, and grow sales through modern, lightning-fast websites.",
-  url: "https://sharmawebstudio.com",
+  url: "https://sharma-web-studio.vercel.app",
   contact: {
     phone: "+91 98765 43210", // Default placeholder, user can update
     whatsapp: "+919876543210",
