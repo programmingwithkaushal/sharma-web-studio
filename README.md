@@ -101,9 +101,10 @@ All phone numbers, WhatsApp links, email addresses, and services are managed in 
 Simply open `site.config.ts` and change:
 ```ts
 contact: {
-  phone: "+91 98765 43210",       // Your actual calling number
-  whatsapp: "+919876543210",       // Your WhatsApp number (with country code)
-  email: "contact@sharmawebstudio.com",
+  phone: "+91 9389463924",       // Your actual calling number
+  phoneSecondary: "+91 7668614225",
+  whatsapp: "+919389463924",       // Your WhatsApp number (with country code)
+  email: "kaushal.sharma.aiml@gmail.com",
   city: "Moradabad, Uttar Pradesh & Pan-India",
 }
 ```

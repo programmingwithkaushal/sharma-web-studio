@@ -4,54 +4,91 @@
 
 @layer base {
   :root {
-    --bg-obsidian: #060709;
-    --bg-graphite: #0c0e12;
-    --bg-charcoal: #14171f;
-    --bg-metallic: #1f2430;
-    --accent-lime: #d4ff00;
-    --accent-champagne: #e6c687;
-    --text-primary: #f8fafc;
-    --text-muted: #94a3b8;
+    --bg-main: #F7F8F9;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F0F1F3;
+    --bg-card: #FFFFFF;
+    --text-primary: #101112;
+    --text-muted: #646669;
+    --border-subtle: rgba(16, 17, 18, 0.08);
+    --border-hover: #101112;
+    --accent: #101112;
+    --accent-contrast: #FFFFFF;
+  }
+
+  html.dark {
+    --bg-main: #101112;
+    --bg-surface: #191B1D;
+    --bg-elevated: #23262A;
+    --bg-card: #191B1D;
+    --text-primary: #F5F4F0;
+    --text-muted: #A5A5A0;
+    --border-subtle: rgba(245, 244, 240, 0.08);
+    --border-hover: #C5F36A;
+    --accent: #C5F36A;
+    --accent-contrast: #101112;
   }
 
   html {
     scroll-behavior: smooth;
     font-family: 'Manrope', system-ui, -apple-system, sans-serif;
-    background-color: #060709;
-    color: #f8fafc;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  html.dark {
+    background-color: #101112;
+    color: #F5F4F0;
+  }
+
+  html.light {
+    background-color: #F7F8F9;
+    color: #101112;
+  }
+
   body {
-    background-color: #060709;
-    color: #f8fafc;
     overflow-x: hidden;
     position: relative;
     min-height: 100vh;
   }
 
-  ::selection {
-    background: #d4ff00;
-    color: #060709;
+  html.dark ::selection {
+    background: #C5F36A;
+    color: #101112;
+  }
+
+  html.light ::selection {
+    background: #101112;
+    color: #FFFFFF;
   }
 }
 
-/* Custom Luxury Obsidian Scrollbar */
+/* Obscura Atelier Luxury Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
-::-webkit-scrollbar-track {
-  background: #060709;
+html.dark ::-webkit-scrollbar-track {
+  background: #101112;
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
+html.light ::-webkit-scrollbar-track {
+  background: #F7F8F9;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(245, 244, 240, 0.15);
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(245, 244, 240, 0.05);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 255, 0, 0.6);
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(16, 17, 18, 0.15);
+  border-radius: 9999px;
+  border: 1px solid rgba(16, 17, 18, 0.05);
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #C5F36A;
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #101112;
 }
 
 /* Typography Utilities */
@@ -60,98 +97,122 @@
   letter-spacing: -0.03em;
 }
 
-/* Luxury Liquid Glass Surfaces */
-.liquid-glass {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 20px 50px -15px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+/* Obscura Atelier Architectural Card Surfaces - Sharp 90-deg Corners & Snappy Ease */
+.obscura-card,
+.atelier-card {
+  border-radius: 0px !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.liquid-glass-elevated {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 
-    0 30px 60px -20px rgba(0, 0, 0, 0.9),
-    0 0 40px -10px rgba(59, 130, 246, 0.12),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.18);
+html.dark .obscura-card,
+html.dark .atelier-card {
+  background: #191B1D;
+  border: 1px solid rgba(245, 244, 240, 0.08);
 }
 
-/* Subtle Interactive Glow */
-.liquid-glow {
-  position: relative;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.liquid-glow:hover {
-  border-color: rgba(96, 165, 250, 0.35);
-  box-shadow: 
-    0 25px 60px -15px rgba(37, 99, 235, 0.25),
-    inset 0 1px 2px 0 rgba(255, 255, 255, 0.25);
-  transform: translateY(-3px);
+html.dark .obscura-card:hover,
+html.dark .atelier-card:hover {
+  transform: translateY(-4px);
+  border-color: #C5F36A;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(197, 243, 106, 0.2);
 }
 
-/* Cinematic Aurora Text Gradients */
-.text-aurora {
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #e2e8f0 40%,
-    #93c5fd 75%,
-    #38bdf8 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+html.light .obscura-card,
+html.light .atelier-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(16, 17, 18, 0.08);
 }
 
-.text-gold-aurora {
-  background: linear-gradient(
-    135deg,
-    #fffbeb 0%,
-    #fef3c7 30%,
-    #fcd34d 70%,
-    #f59e0b 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+html.light .obscura-card:hover,
+html.light .atelier-card:hover {
+  transform: translateY(-4px);
+  border-color: #101112;
+  box-shadow: 0 14px 32px -10px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(16, 17, 18, 0.15);
 }
 
-.text-emerald-aurora {
-  background: linear-gradient(
-    135deg,
-    #ecfdf5 0%,
-    #a7f3d0 40%,
-    #34d399 75%,
-    #059669 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Fast Ease-Up Utility for Cards & Interactive Elements */
+.fast-ease {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Noise overlay */
-.bg-noise {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
-  background-size: 32px 32px;
+.fast-ease:hover {
+  transform: translateY(-4px);
 }
 
-/* Reduced motion accessibility */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* High-Contrast Warm Ivory Panel - Sharp Architectural Slab */
+.ivory-panel {
+  background-color: #F2F0E9;
+  color: #101112;
+  border: 1px solid rgba(16, 17, 18, 0.12);
+  border-radius: 0px !important;
+}
+
+/* Sharp Technical Buttons */
+.btn-sharp {
+  border-radius: 0px !important;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-sharp:hover {
+  transform: translateY(-2px);
+}
+.btn-sharp:active {
+  transform: translateY(0);
+}
+
+/* Light Mode Global Structural Overrides for Architectural Gallery Feel */
+html.light .bg-\[\#101112\]:not(header):not(.theme-toggle) {
+  background-color: #F7F8F9 !important;
+}
+
+html.light .bg-\[\#191B1D\] {
+  background-color: #FFFFFF !important;
+}
+
+html.light .text-\[\#F5F4F0\] {
+  color: #101112 !important;
+}
+
+html.light .text-\[\#A5A5A0\] {
+  color: #5E6268 !important;
+}
+
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/\[0\.08\],
+html.light .border-white\/\[0\.07\],
+html.light .border-white\/\[0\.06\] {
+  border-color: rgba(16, 17, 18, 0.09) !important;
+}
+
+html.light .hover\:border-\[\#C5F36A\]:hover {
+  border-color: #101112 !important;
+}
+
+html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/\[0\.02\],
+html.light .bg-white\/5 {
+  background-color: rgba(16, 17, 18, 0.03) !important;
+}
+
+/* Accent Buttons in Light Mode */
+html.light .bg-\[\#C5F36A\] {
+  background-color: #101112 !important;
+  color: #FFFFFF !important;
+}
+
+html.light .bg-\[\#C5F36A\].text-\[\#101112\] {
+  color: #FFFFFF !important;
+}
+
+html.light .hover\:bg-\[\#C5F36A\]:hover {
+  background-color: #101112 !important;
+  color: #FFFFFF !important;
+}
+
+html.light .text-\[\#C5F36A\] {
+  color: #101112 !important;
 }

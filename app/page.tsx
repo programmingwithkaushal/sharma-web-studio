@@ -18,7 +18,7 @@ import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen relative bg-[#060709] text-white selection:bg-[#d4ff00] selection:text-black">
+    <div className="flex flex-col min-h-screen relative bg-[#F7F8F9] dark:bg-[#101112] text-[#101112] dark:text-[#F5F4F0] selection:bg-[#C5F36A] selection:text-[#101112] transition-colors duration-200">
       {/* Signature 3D WebGL Digital Sculpture Engine */}
       <LusionCanvas />
 

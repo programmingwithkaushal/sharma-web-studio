@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: "class",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,35 +10,39 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        obsidian: "#060709",
-        graphite: "#0c0e12",
-        charcoal: "#14171f",
-        metallic: "#1f2430",
-        void: "#060709",
-        surface: "#0c0e12",
-        elevated: "#14171f",
+        atelier: {
+          dark: "#101112",
+          surface: "#191B1D",
+          ivory: "#F2F0E9",
+          text: "#F5F4F0",
+          muted: "#A5A5A0",
+          accent: "#C5F36A",
+          silver: "#D1D5DB",
+        },
+        obsidian: "#101112",
+        graphite: "#191B1D",
+        charcoal: "#1F2225",
+        metallic: "#282C30",
+        void: "#101112",
+        surface: "#191B1D",
+        elevated: "#23262A",
         "electric-lime": {
-          DEFAULT: "#d4ff00",
-          muted: "#a8cc00",
-          glow: "rgba(212, 255, 0, 0.35)",
+          DEFAULT: "#C5F36A",
+          muted: "#A4CC52",
+          glow: "rgba(197, 243, 106, 0.3)",
         },
         champagne: {
           100: "#fef9ee",
           200: "#fdf1d6",
           300: "#fbe4b2",
           400: "#f7cf82",
-          500: "#e6c687",
+          500: "#F2F0E9",
           600: "#d4af37",
         },
-        cyan: {
-          400: "#38bdf8",
-          500: "#06b6d4",
-          600: "#0891b2",
-        },
         silver: {
-          DEFAULT: "#94a3b8",
-          light: "#e2e8f0",
-          dark: "#64748b",
+          DEFAULT: "#A5A5A0",
+          light: "#F5F4F0",
+          dark: "#71716D",
         },
       },
       fontFamily: {

@@ -29,20 +29,18 @@ export default function LusionCanvas() {
       return;
     }
 
-    // Check user preference for reduced motion
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Scene & Perspective Camera
+    // 1. Scene, Camera, Renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      42,
+      50,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
-    camera.position.z = 5.8;
+    camera.position.set(0, 0, 6.0);
 
-    // Renderer
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({
@@ -61,205 +59,254 @@ export default function LusionCanvas() {
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    // Vertex Shader: Precision 3D Simplex noise for futuristic architectural morphing
-    const vertexShader = `
-      uniform float uTime;
-      uniform vec2 uMouse;
-      uniform float uMorphIntensity;
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      varying vec2 vUv;
-      varying float vDisplacement;
+    // 2. Dense Spider Web Topology
+    // Concentric rings & radial spokes configuration
+    const SPOKES_COUNT = 44; // Dense radial spokes
+    const RINGS_COUNT = 38;  // Dense concentric rings
+    const TOTAL_NODES = SPOKES_COUNT * RINGS_COUNT;
+    const HUB_X = 0.15;
+    const HUB_Y = -0.05;
+    const MIN_RADIUS = 0.35;
+    const MAX_RADIUS = 6.8;
 
-      // Efficient 3D Noise Implementation
-      vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
-      vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+    // Store base positions, current positions, and velocities for spring physics
+    const basePositions = new Float32Array(TOTAL_NODES * 3);
+    const currentPositions = new Float32Array(TOTAL_NODES * 3);
+    const velocities = new Float32Array(TOTAL_NODES * 3);
+    const nodeColors = new Float32Array(TOTAL_NODES * 3);
 
-      float snoise(vec3 v){
-        const vec2 C = vec2(1.0/6.0, 1.0/3.0);
-        const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
-        vec3 i  = floor(v + dot(v, C.yyy));
-        vec3 x0 = v - i + dot(i, C.xxx);
-        vec3 g = step(x0.yzx, x0.xyz);
-        vec3 l = 1.0 - g;
-        vec3 i1 = min( g.xyz, l.zxy );
-        vec3 i2 = max( g.xyz, l.zxy );
-        vec3 x1 = x0 - i1 + 1.0 * C.xxx;
-        vec3 x2 = x0 - i2 + 2.0 * C.xxx;
-        vec3 x3 = x0 - 1.0 + 3.0 * C.xxx;
-        i = mod(i, 289.0 );
-        vec4 p = permute( permute( permute(
-                  i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
-                + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
-                + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
-        float n_ = 0.142857142857;
-        vec3  ns = n_ * D.wyz - D.xzx;
-        vec4 j = p - 49.0 * floor(p * ns.z *ns.z);
-        vec4 x_ = floor(j * ns.z);
-        vec4 y_ = floor(j - 7.0 * x_ );
-        vec4 x = x_ *ns.x + ns.yyyy;
-        vec4 y = y_ *ns.x + ns.yyyy;
-        vec4 h = 1.0 - abs(x) - abs(y);
-        vec4 b0 = vec4( x.xy, y.xy );
-        vec4 b1 = vec4( x.zw, y.zw );
-        vec4 s0 = floor(b0)*2.0 + 1.0;
-        vec4 s1 = floor(b1)*2.0 + 1.0;
-        vec4 sh = -step(h, vec4(0.0));
-        vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
-        vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
-        vec3 p0 = vec3(a0.xy,h.x);
-        vec3 p1 = vec3(a0.zw,h.y);
-        vec3 p2 = vec3(a1.xy,h.z);
-        vec3 p3 = vec3(a1.zw,h.w);
-        vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
-        p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
-        vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
-        m = m * m;
-        return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
+    let isLightMode = document.documentElement.classList.contains("light");
+
+    // Colors
+    const darkNodeColor = new THREE.Color(0xc5f36a);
+    const darkNodeDim = new THREE.Color(0x3a4048);
+    const lightNodeColor = new THREE.Color(0x101112);
+    const lightNodeDim = new THREE.Color(0x8a8e94);
+
+    // Initialize Web Nodes
+    for (let ring = 0; ring < RINGS_COUNT; ring++) {
+      // Exponential distribution for natural dense center and expanding perimeter
+      const ringProgress = ring / (RINGS_COUNT - 1);
+      const radius = MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * Math.pow(ringProgress, 1.15);
+
+      for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
+        const index = ring * SPOKES_COUNT + spoke;
+        const baseAngle = (spoke / SPOKES_COUNT) * Math.PI * 2;
+        
+        // Subtle natural organic irregularity in spider silk threads
+        const angleJitter = Math.sin(ring * 2.5 + spoke * 1.8) * 0.025;
+        const angle = baseAngle + angleJitter;
+        const radiusJitter = (Math.sin(spoke * 4.2) * 0.03 + Math.cos(ring * 3.1) * 0.02) * radius;
+        const r = radius + radiusJitter;
+
+        const x = HUB_X + Math.cos(angle) * r;
+        const y = HUB_Y + Math.sin(angle) * r;
+        // Natural resting sag: outer perimeter is slightly elevated, inner center sags slightly
+        const z = -Math.pow(1.0 - ringProgress, 1.8) * 0.45;
+
+        const i3 = index * 3;
+        basePositions[i3] = x;
+        basePositions[i3 + 1] = y;
+        basePositions[i3 + 2] = z;
+
+        currentPositions[i3] = x;
+        currentPositions[i3 + 1] = y;
+        currentPositions[i3 + 2] = z;
+
+        velocities[i3] = 0;
+        velocities[i3 + 1] = 0;
+        velocities[i3 + 2] = 0;
+
+        const c = isLightMode
+          ? (ring % 3 === 0 ? lightNodeColor : lightNodeDim)
+          : (ring % 3 === 0 ? darkNodeColor : darkNodeDim);
+        nodeColors[i3] = c.r;
+        nodeColors[i3 + 1] = c.g;
+        nodeColors[i3 + 2] = c.b;
       }
-
-      void main() {
-        vUv = uv;
-        vNormal = normalize(normalMatrix * normal);
-        
-        // Fluid architectural sculpture displacement
-        vec3 coords = normal * 1.6;
-        float noise = snoise(coords + vec3(uTime * 0.28));
-        noise += 0.45 * snoise(coords * 2.2 - vec3(uTime * 0.32));
-        
-        // Dynamic mouse wave interaction
-        float mouseDist = length(uv - (uMouse * 0.5 + 0.5));
-        float mouseRipple = sin(mouseDist * 14.0 - uTime * 3.5) * 0.07 * exp(-mouseDist * 3.2);
-        
-        float displacement = (noise * 0.42 + mouseRipple) * uMorphIntensity;
-        vDisplacement = displacement;
-        
-        vec3 newPosition = position + normal * displacement;
-        vPosition = newPosition;
-        
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-      }
-    `;
-
-    // Fragment Shader: High-End Obsidian Chrome with Champagne Sheen and Electric-Lime Accents
-    const fragmentShader = `
-      uniform float uTime;
-      varying vec3 vNormal;
-      varying vec3 vPosition;
-      varying vec2 vUv;
-      varying float vDisplacement;
-
-      void main() {
-        // View angle and Fresnel rim illumination
-        vec3 viewDir = normalize(cameraPosition - vPosition);
-        float fresnel = 1.0 - max(0.0, dot(viewDir, vNormal));
-        fresnel = pow(fresnel, 2.8);
-
-        // Core Architectural Palette: Deep Obsidian to Platinum Chrome
-        vec3 colorObsidian = vec3(0.024, 0.027, 0.035);   // #060709
-        vec3 colorCharcoal = vec3(0.078, 0.090, 0.122);   // #14171F
-        vec3 colorPlatinum = vec3(0.88, 0.90, 0.94);      // Polished metal
-        vec3 colorChampagne = vec3(0.90, 0.78, 0.53);     // #E6C687 luxury gold
-        vec3 colorElectricLime = vec3(0.83, 1.0, 0.0);    // #D4FF00 signature accent
-
-        // Spatial curvature blend
-        float t = vDisplacement * 1.6 + sin(uTime * 0.4 + vPosition.y * 1.8) * 0.4;
-        vec3 metallicBase = mix(colorCharcoal, colorPlatinum, smoothstep(-0.35, 0.45, t));
-
-        // Subtle champagne & electric-lime metallic reflection highlights
-        vec3 reflectiveSheen = mix(metallicBase, colorChampagne, smoothstep(0.15, 0.75, fresnel));
-        reflectiveSheen = mix(reflectiveSheen, colorElectricLime, smoothstep(0.78, 0.98, fresnel) * 0.35);
-
-        // Dual Key Light Specular Highlights
-        vec3 keyLight1 = normalize(vec3(2.5, 4.5, 3.5));
-        vec3 halfVector1 = normalize(keyLight1 + viewDir);
-        float NdotH1 = max(0.0, dot(vNormal, halfVector1));
-        float specular1 = pow(NdotH1, 72.0) * 1.6;
-
-        vec3 keyLight2 = normalize(vec3(-3.0, -2.0, 2.0));
-        vec3 halfVector2 = normalize(keyLight2 + viewDir);
-        float NdotH2 = max(0.0, dot(vNormal, halfVector2));
-        float specular2 = pow(NdotH2, 36.0) * 0.5;
-
-        // Final Composite: Obsidian core + Metallic Reflection + Specular
-        vec3 finalColor = mix(colorObsidian, reflectiveSheen, fresnel * 0.88 + 0.12);
-        finalColor += vec3(specular1) * colorPlatinum;
-        finalColor += vec3(specular2) * colorChampagne * 0.6;
-
-        // Smooth falloff into deep obsidian background
-        float alpha = smoothstep(0.0, 0.92, fresnel * 0.85 + 0.38);
-
-        gl_FragColor = vec4(finalColor, alpha * 0.92);
-      }
-    `;
-
-    // 3D Sculpture Geometry: High-Density Icosahedron
-    const geometry = new THREE.IcosahedronGeometry(1.85, 64);
-    const material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms: {
-        uTime: { value: 0 },
-        uMouse: { value: new THREE.Vector2(0, 0) },
-        uMorphIntensity: { value: prefersReducedMotion ? 0.3 : 1.0 },
-      },
-      transparent: true,
-      blending: THREE.NormalBlending,
-      side: THREE.DoubleSide,
-    });
-
-    const sculptureMesh = new THREE.Mesh(geometry, material);
-    sculptureMesh.position.set(0, 0, 0);
-    scene.add(sculptureMesh);
-
-    // Floating Obsidian/Chrome dust particles
-    const particleCount = 180;
-    const particleGeometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 11;
-      positions[i + 1] = (Math.random() - 0.5) * 8.5;
-      positions[i + 2] = (Math.random() - 0.5) * 8.5;
     }
 
-    particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    const particleMaterial = new THREE.PointsMaterial({
-      color: 0xd4ff00,
-      size: 0.022,
+    // 3. Build Web Lines (Radial Spokes + Concentric Ring Chords + Spiral Cross Threads)
+    const lineIndices: number[] = [];
+
+    // A. Radial spoke connections (connecting ring to ring+1 along same spoke)
+    for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
+      for (let ring = 0; ring < RINGS_COUNT - 1; ring++) {
+        const i1 = ring * SPOKES_COUNT + spoke;
+        const i2 = (ring + 1) * SPOKES_COUNT + spoke;
+        lineIndices.push(i1, i2);
+      }
+    }
+
+    // B. Concentric ring chords (connecting spoke to (spoke+1)%SPOKES_COUNT on same ring)
+    for (let ring = 0; ring < RINGS_COUNT; ring++) {
+      for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
+        const nextSpoke = (spoke + 1) % SPOKES_COUNT;
+        const i1 = ring * SPOKES_COUNT + spoke;
+        const i2 = ring * SPOKES_COUNT + nextSpoke;
+        lineIndices.push(i1, i2);
+      }
+    }
+
+    // C. Auxiliary diagonal cross-fibers (gives high-density structural web texture)
+    for (let ring = 1; ring < RINGS_COUNT - 1; ring += 2) {
+      for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
+        const nextSpoke = (spoke + 1) % SPOKES_COUNT;
+        const i1 = ring * SPOKES_COUNT + spoke;
+        const i2 = (ring + 1) * SPOKES_COUNT + nextSpoke;
+        lineIndices.push(i1, i2);
+      }
+    }
+
+    // 4. Three.js Geometries & Materials
+    // Line Segments Geometry
+    const lineGeo = new THREE.BufferGeometry();
+    lineGeo.setAttribute("position", new THREE.BufferAttribute(currentPositions, 3));
+    lineGeo.setIndex(lineIndices);
+
+    const lineMat = new THREE.LineBasicMaterial({
+      color: isLightMode ? 0x2b2e34 : 0x767d88,
       transparent: true,
-      opacity: 0.45,
-      blending: THREE.AdditiveBlending,
+      opacity: isLightMode ? 0.38 : 0.42,
+      blending: THREE.NormalBlending,
+      linewidth: 1,
     });
+    const lineMesh = new THREE.LineSegments(lineGeo, lineMat);
+    scene.add(lineMesh);
 
-    const particles = new THREE.Points(particleGeometry, particleMaterial);
-    scene.add(particles);
+    // Nodes (Dew Droplets / Joint Beads)
+    const pointsGeo = new THREE.BufferGeometry();
+    pointsGeo.setAttribute("position", new THREE.BufferAttribute(currentPositions, 3));
+    pointsGeo.setAttribute("color", new THREE.BufferAttribute(nodeColors, 3));
 
-    // Mouse Tracking with Inertial Damping
-    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    let isDragging = false;
-    let prevMousePos = { x: 0, y: 0 };
+    const pointsMat = new THREE.PointsMaterial({
+      size: isLightMode ? 0.038 : 0.046,
+      vertexColors: true,
+      transparent: true,
+      opacity: isLightMode ? 0.6 : 0.85,
+      blending: THREE.NormalBlending,
+    });
+    const pointsMesh = new THREE.Points(pointsGeo, pointsMat);
+    scene.add(pointsMesh);
+
+    // 5. Celestial Planet / Heavy Gravitational Focal Orb (Visual weight)
+    const planetGroup = new THREE.Group();
+    scene.add(planetGroup);
+
+    // Heavy celestial core sphere
+    const planetCoreGeo = new THREE.SphereGeometry(0.18, 24, 24);
+    const planetCoreMat = new THREE.MeshBasicMaterial({
+      color: isLightMode ? 0x101112 : 0xc5f36a,
+      transparent: true,
+      opacity: isLightMode ? 0.85 : 0.95,
+    });
+    const planetCore = new THREE.Mesh(planetCoreGeo, planetCoreMat);
+    planetGroup.add(planetCore);
+
+    // Gravitational Horizon Ring (visual space bend indicator)
+    const ringGeo = new THREE.RingGeometry(0.24, 0.27, 32);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: isLightMode ? 0x30343a : 0xc5f36a,
+      transparent: true,
+      opacity: isLightMode ? 0.4 : 0.6,
+      side: THREE.DoubleSide,
+    });
+    const horizonRing = new THREE.Mesh(ringGeo, ringMat);
+    planetGroup.add(horizonRing);
+
+    // Floating micro cosmic dust
+    const dustCount = 120;
+    const dustGeo = new THREE.BufferGeometry();
+    const dustPos = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount * 3; i += 3) {
+      dustPos[i] = (Math.random() - 0.5) * 12;
+      dustPos[i + 1] = (Math.random() - 0.5) * 10;
+      dustPos[i + 2] = (Math.random() - 0.5) * 4;
+    }
+    dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+    const dustMat = new THREE.PointsMaterial({
+      color: isLightMode ? 0x101112 : 0xc5f36a,
+      size: 0.02,
+      transparent: true,
+      opacity: 0.3,
+    });
+    const dustPoints = new THREE.Points(dustGeo, dustMat);
+    scene.add(dustPoints);
+
+    // 6. Theme Switching Handler
+    const updateThemeMaterials = (theme: "dark" | "light") => {
+      const isLight = theme === "light";
+      lineMat.color.setHex(isLight ? 0x2b2e34 : 0x767d88);
+      lineMat.opacity = isLight ? 0.38 : 0.42;
+
+      planetCoreMat.color.setHex(isLight ? 0x101112 : 0xc5f36a);
+      ringMat.color.setHex(isLight ? 0x30343a : 0xc5f36a);
+      dustMat.color.setHex(isLight ? 0x101112 : 0xc5f36a);
+
+      const colorAttr = pointsGeo.attributes.color as THREE.BufferAttribute;
+      for (let ring = 0; ring < RINGS_COUNT; ring++) {
+        for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
+          const index = ring * SPOKES_COUNT + spoke;
+          const i3 = index * 3;
+          const c = isLight
+            ? (ring % 3 === 0 ? lightNodeColor : lightNodeDim)
+            : (ring % 3 === 0 ? darkNodeColor : darkNodeDim);
+          colorAttr.setXYZ(index, c.r, c.g, c.b);
+        }
+      }
+      colorAttr.needsUpdate = true;
+    };
+
+    const handleThemeEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<{ theme: "dark" | "light" }>;
+      if (customEvent.detail?.theme) {
+        updateThemeMaterials(customEvent.detail.theme);
+      }
+    };
+    window.addEventListener("sws_theme_change", handleThemeEvent);
+
+    // 7. Mouse & Gravitational Physics Engine
+    const mouseNdc = new THREE.Vector2(0, 0);
+    const targetMouseNdc = new THREE.Vector2(0, 0);
+    const planetPos = new THREE.Vector3(0, 0, -0.8);
+    const targetPlanetPos = new THREE.Vector3(0, 0, -0.8);
+    let isMouseOnScreen = false;
+
+    // Raycaster to project mouse onto the web plane at Z = 0
+    const raycaster = new THREE.Raycaster();
+    const planeZ0 = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    const planeIntersectPoint = new THREE.Vector3();
 
     const handleMouseMove = (e: MouseEvent) => {
-      mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+      isMouseOnScreen = true;
+      targetMouseNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
+      targetMouseNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-      if (isDragging) {
-        const deltaX = e.clientX - prevMousePos.x;
-        const deltaY = e.clientY - prevMousePos.y;
-        sculptureMesh.rotation.y += deltaX * 0.005;
-        sculptureMesh.rotation.x += deltaY * 0.005;
-        prevMousePos = { x: e.clientX, y: e.clientY };
+      raycaster.setFromCamera(targetMouseNdc, camera);
+      raycaster.ray.intersectPlane(planeZ0, planeIntersectPoint);
+      if (planeIntersectPoint) {
+        targetPlanetPos.x = planeIntersectPoint.x;
+        targetPlanetPos.y = planeIntersectPoint.y;
+        // As it moves, the heavy planet sinks deeper into the spacetime sheet
+        targetPlanetPos.z = -0.95;
       }
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
-      isDragging = true;
-      prevMousePos = { x: e.clientX, y: e.clientY };
+    const handleMouseLeave = () => {
+      isMouseOnScreen = false;
+      targetPlanetPos.set(0, 0, 4.0); // retract off-screen smoothly
     };
 
-    const handleMouseUp = () => {
-      isDragging = false;
+    // Scroll Tracking
+    let scrollProgress = 0;
+    let targetScrollProgress = 0;
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const maxScroll = Math.max(
+        document.documentElement.scrollHeight - window.innerHeight,
+        1
+      );
+      targetScrollProgress = scrollY / maxScroll;
     };
 
     const handleResize = () => {
@@ -270,34 +317,121 @@ export default function LusionCanvas() {
     };
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleResize);
+    handleScroll();
 
-    // Animation Render Loop
+    // 8. Animation & Elastic Spacetime Deformation Loop
     let animationFrameId: number;
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
+
+    const GRAVITY_RADIUS = 2.9;   // Range of gravitational well around planet
+    const GRAVITY_DEPTH = 2.1;    // Maximum spacetime sag depth (Z depression)
+    const LATERAL_PULL = 0.42;    // Inward lateral tension pull towards planet center
+    const SPRING_K = 0.14;        // Elastic web tension spring stiffness
+    const DAMPING = 0.84;         // Viscous air & silk thread damping (creates realistic recoil wave)
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      // Update uniforms
-      material.uniforms.uTime.value = elapsedTime;
+      // Smooth scroll lerp
+      scrollProgress += (targetScrollProgress - scrollProgress) * 0.08;
 
-      // Smooth mouse follow with spring interpolation
-      mouse.x += (mouse.targetX - mouse.x) * 0.04;
-      mouse.y += (mouse.targetY - mouse.y) * 0.04;
-      material.uniforms.uMouse.value.set(mouse.x, mouse.y);
+      // Smooth mouse / planet position lerp
+      mouseNdc.x += (targetMouseNdc.x - mouseNdc.x) * 0.08;
+      mouseNdc.y += (targetMouseNdc.y - mouseNdc.y) * 0.08;
 
-      // Idle environmental rotation
-      if (!isDragging && !prefersReducedMotion) {
-        sculptureMesh.rotation.y = elapsedTime * 0.12 + mouse.x * 0.4;
-        sculptureMesh.rotation.x = Math.sin(elapsedTime * 0.15) * 0.15 + mouse.y * 0.3;
+      planetPos.x += (targetPlanetPos.x - planetPos.x) * 0.12;
+      planetPos.y += (targetPlanetPos.y - planetPos.y) * 0.12;
+      planetPos.z += (targetPlanetPos.z - planetPos.z) * 0.12;
+
+      // Update celestial planet position & orbital ring wobble
+      planetGroup.position.copy(planetPos);
+      horizonRing.rotation.z = elapsedTime * 1.5;
+      horizonRing.rotation.x = Math.sin(elapsedTime * 2.0) * 0.25;
+
+      // Camera tilt based on scroll and mouse for panoramic depth
+      camera.position.x = mouseNdc.x * 0.4;
+      camera.position.y = mouseNdc.y * 0.3 - scrollProgress * 1.8;
+      camera.lookAt(0, -scrollProgress * 1.5, 0);
+
+      // Compute Spacetime Physics on All Web Nodes
+      const posAttr = lineGeo.attributes.position as THREE.BufferAttribute;
+      const posArray = posAttr.array as Float32Array;
+
+      // Subtle ambient silk breathing wave across the web
+      const ambientWave = Math.sin(elapsedTime * 1.2) * 0.04;
+
+      for (let i = 0; i < TOTAL_NODES; i++) {
+        const i3 = i * 3;
+        const bx = basePositions[i3];
+        const by = basePositions[i3 + 1];
+        const bz = basePositions[i3 + 2] + ambientWave;
+
+        let curX = posArray[i3];
+        let curY = posArray[i3 + 1];
+        let curZ = posArray[i3 + 2];
+
+        let vx = velocities[i3];
+        let vy = velocities[i3 + 1];
+        let vz = velocities[i3 + 2];
+
+        // Vector from node to heavy planet
+        const dx = planetPos.x - curX;
+        const dy = planetPos.y - curY;
+        const distSq = dx * dx + dy * dy;
+        const dist = Math.sqrt(distSq);
+
+        // Target displaced position (base by default)
+        let targetX = bx;
+        let targetY = by;
+        let targetZ = bz;
+
+        // Gravitational Depression (Space Bend with Planet)
+        if (isMouseOnScreen && dist < GRAVITY_RADIUS && planetPos.z < 2.0) {
+          const normDist = dist / GRAVITY_RADIUS;
+          // Gaussian spacetime curvature well
+          const well = Math.exp(-normDist * normDist * 3.2);
+
+          // 1. Z-Depth sag: Web severely funnels downward into 3D depth under the planet's mass
+          targetZ = bz - well * GRAVITY_DEPTH;
+
+          // 2. Inward lateral tension: Surrounding fibers are sucked inward toward the center of gravity
+          const pullFactor = well * LATERAL_PULL;
+          targetX = bx + dx * pullFactor;
+          targetY = by + dy * pullFactor;
+        }
+
+        // Spring acceleration towards target equilibrium
+        const ax = (targetX - curX) * SPRING_K;
+        const ay = (targetY - curY) * SPRING_K;
+        const az = (targetZ - curZ) * SPRING_K;
+
+        // Velocity integration with silk tension damping
+        vx = (vx + ax) * DAMPING;
+        vy = (vy + ay) * DAMPING;
+        vz = (vz + az) * DAMPING;
+
+        curX += vx;
+        curY += vy;
+        curZ += vz;
+
+        posArray[i3] = curX;
+        posArray[i3 + 1] = curY;
+        posArray[i3 + 2] = curZ;
+
+        velocities[i3] = vx;
+        velocities[i3 + 1] = vy;
+        velocities[i3 + 2] = vz;
       }
 
-      particles.rotation.y = elapsedTime * 0.025;
-      particles.rotation.x = elapsedTime * 0.015;
+      posAttr.needsUpdate = true;
+      (pointsGeo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+
+      // Dust subtle drift
+      dustPoints.rotation.y = elapsedTime * 0.02;
 
       renderer.render(scene, camera);
     };
@@ -307,39 +441,43 @@ export default function LusionCanvas() {
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("sws_theme_change", handleThemeEvent);
 
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
-      geometry.dispose();
-      material.dispose();
-      particleGeometry.dispose();
-      particleMaterial.dispose();
+      lineGeo.dispose();
+      lineMat.dispose();
+      pointsGeo.dispose();
+      pointsMat.dispose();
+      planetCoreGeo.dispose();
+      planetCoreMat.dispose();
+      ringGeo.dispose();
+      ringMat.dispose();
+      dustGeo.dispose();
+      dustMat.dispose();
       renderer.dispose();
     };
   }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {/* 3D WebGL Canvas Layer */}
       <div
         ref={containerRef}
         className="w-full h-full cursor-grab active:cursor-grabbing pointer-events-auto"
         aria-hidden="true"
       />
-
-      {/* Non-WebGL Fallback Mesh */}
       {!webGLSupported && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-charcoal via-metallic to-charcoal border border-white/10 blur-[80px] opacity-60 animate-pulse-glow" />
+          <div className="w-[460px] h-[460px] rounded-none bg-gradient-to-tr from-[#191B1D] via-[#282C30] to-[#101112] border border-white/10 blur-[80px] opacity-60" />
         </div>
       )}
-
-      {/* Subtle obsidian cinematic vignette */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(6,7,9,0.7)_80%,rgba(6,7,9,0.98)_100%)]" />
+      {/* Dynamic ambient radial vignette */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(16,17,18,0.55)_75%,rgba(16,17,18,0.92)_100%)] dark:block hidden" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(247,248,249,0.4)_75%,rgba(247,248,249,0.88)_100%)] dark:hidden block" />
     </div>
   );
 }

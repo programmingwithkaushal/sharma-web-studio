@@ -10,8 +10,6 @@ import {
   Clock,
   Send,
   CheckCircle2,
-  AlertCircle,
-  ShieldCheck,
   ArrowUpRight,
 } from "lucide-react";
 
@@ -60,7 +58,6 @@ export default function ContactSection() {
     setErrors({});
     setIsSubmitting(true);
 
-    // Format consultation dispatch payload for founders
     const dispatchMessage = encodeURIComponent(
       `New Consultation Request from Sharma Web Studio Website:\n\n` +
         `• Name: ${formData.fullName.trim()}\n` +
@@ -71,11 +68,10 @@ export default function ContactSection() {
         `Submitted via sharma-web-studio.vercel.app`
     );
 
-    // Simulate reliable dispatch state & trigger direct WhatsApp routing
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
-      const waUrl = `https://wa.me/${siteConfig.contact.whatsapp.replace(/\+/g, "")}?text=${dispatchMessage}`;
+      const waUrl = `https://wa.me/919389463924?text=${dispatchMessage}`;
       window.open(waUrl, "_blank");
     }, 600);
   };
@@ -83,105 +79,129 @@ export default function ContactSection() {
   return (
     <section id="contact" className="py-28 px-6 sm:px-12 relative z-10 border-t border-white/10 select-none">
       <div className="max-w-6xl mx-auto">
-        {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#d4ff00]" />
-              <span className="font-mono text-xs uppercase tracking-widest text-[#d4ff00]">
+              <span className="w-1.5 h-1.5 bg-[#C5F36A]" />
+              <span className="font-mono text-xs uppercase tracking-widest text-[#C5F36A]">
                 Section 14 // Consultation Terminal
               </span>
             </div>
-            <h2 className="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight uppercase">
+            <h2 className="font-display font-extrabold text-3xl sm:text-5xl text-[#F5F4F0] tracking-tight uppercase">
               Initiate Your Project
             </h2>
           </div>
-          <p className="font-mono text-xs text-slate-400 max-w-sm uppercase tracking-wider">
+          <p className="font-mono text-xs text-[#A5A5A0] max-w-sm uppercase tracking-wider">
             Direct access to founders Kaushal Sharma &amp; Akhilesh Sharma. Receive an architectural proposal within 24 hours.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Direct Touchpoint Cards (5 cols) */}
+          {/* Left Column: Direct Touchpoint Cards */}
           <div className="lg:col-span-5 space-y-4">
-            {/* WhatsApp Direct Card */}
+            {/* Primary WhatsApp Card */}
             <a
-              href={`https://wa.me/${siteConfig.contact.whatsapp.replace(/\+/g, "")}?text=${encodeURIComponent(
-                "Hi Kaushal & Akhilesh! I would like to schedule an introductory consultation for my business."
-              )}`}
+              href="https://wa.me/919389463924?text=Hi%20Kaushal%20%26%20Akhilesh!%20I%20would%20like%20to%20schedule%20an%20introductory%20consultation%20for%20my%20business."
               target="_blank"
               rel="noopener noreferrer"
-              className="p-6 rounded-3xl bg-[#0c0e12]/80 border border-[#d4ff00]/40 hover:border-[#d4ff00] transition-all backdrop-blur-md flex items-center justify-between group block"
+              className="p-6 rounded-none bg-[#191B1D] border border-[#C5F36A]/40 hover:border-[#C5F36A] fast-ease flex items-center justify-between group block"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#d4ff00]/10 border border-[#d4ff00]/30 flex items-center justify-center">
-                  <MessageCircle className="w-6 h-6 text-[#d4ff00]" />
+                <div className="w-12 h-12 rounded-none bg-[#C5F36A]/10 border border-[#C5F36A]/30 flex items-center justify-center">
+                  <MessageCircle className="w-6 h-6 text-[#C5F36A]" />
                 </div>
                 <div>
-                  <div className="font-mono text-[10px] text-[#d4ff00] uppercase tracking-wider">
-                    Instant 1-Click Priority
+                  <div className="font-mono text-[10px] text-[#C5F36A] uppercase tracking-wider font-semibold">
+                    [ Official WhatsApp Hotline ]
                   </div>
-                  <div className="font-display font-bold text-base text-white">Direct WhatsApp Hotline</div>
-                  <div className="font-mono text-xs text-slate-400">{siteConfig.contact.whatsapp}</div>
+                  <div className="font-display font-bold text-base text-[#F5F4F0]">+91 9389463924</div>
+                  <div className="font-mono text-xs text-[#A5A5A0]">Direct Founder Response</div>
                 </div>
               </div>
-              <ArrowUpRight className="w-5 h-5 text-white/40 group-hover:text-[#d4ff00] transition-colors" />
+              <ArrowUpRight className="w-5 h-5 text-white/40 group-hover:text-[#C5F36A] transition-colors" />
             </a>
 
-            {/* Phone Card */}
-            <div className="p-6 rounded-3xl bg-[#0c0e12]/80 border border-white/10 backdrop-blur-md flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                <Phone className="w-5 h-5 text-white" />
+            {/* Both Founder Telephone Numbers */}
+            <div className="p-6 rounded-none bg-[#191B1D] border border-white/10 fast-ease space-y-4">
+              <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+                <Phone className="w-4 h-4 text-[#C5F36A]" />
+                <span className="font-mono text-xs uppercase tracking-wider text-[#A5A5A0]">
+                  [ Direct Founder Telephones ]
+                </span>
               </div>
-              <div>
-                <div className="font-mono text-[10px] text-slate-400 uppercase tracking-wider">
-                  Direct Founder Phone
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-[#A5A5A0]">Kaushal Sharma (Tech Lead):</div>
+                  <a href="tel:+919389463924" className="font-display font-bold text-sm text-[#F5F4F0] hover:text-[#C5F36A]">
+                    +91 9389463924
+                  </a>
                 </div>
-                <div className="font-display font-bold text-base text-white">{siteConfig.contact.phone}</div>
-                <div className="font-mono text-xs text-slate-400">Available Mon - Sat</div>
+                <span className="font-mono text-[10px] text-[#A5A5A0]">[ Engineering ]</span>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                <div>
+                  <div className="text-xs text-[#A5A5A0]">Akhilesh Sharma (Growth Lead):</div>
+                  <a href="tel:+917668614225" className="font-display font-bold text-sm text-[#F5F4F0] hover:text-[#C5F36A]">
+                    +91 7668614225
+                  </a>
+                </div>
+                <span className="font-mono text-[10px] text-[#A5A5A0]">[ Strategy ]</span>
               </div>
             </div>
 
-            {/* Email Card */}
-            <div className="p-6 rounded-3xl bg-[#0c0e12]/80 border border-white/10 backdrop-blur-md flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-white" />
+            {/* Official Founder Emails */}
+            <div className="p-6 rounded-none bg-[#191B1D] border border-white/10 fast-ease space-y-3">
+              <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+                <Mail className="w-4 h-4 text-[#C5F36A]" />
+                <span className="font-mono text-xs uppercase tracking-wider text-[#A5A5A0]">
+                  [ Official Email Channels ]
+                </span>
               </div>
-              <div>
-                <div className="font-mono text-[10px] text-slate-400 uppercase tracking-wider">
-                  Official Studio Email
+
+              <div className="space-y-2 font-mono text-xs">
+                <div>
+                  <div className="text-[10px] text-[#A5A5A0]">Technical Proposals:</div>
+                  <a href="mailto:kaushal.sharma.aiml@gmail.com" className="text-[#F5F4F0] hover:text-[#C5F36A]">
+                    kaushal.sharma.aiml@gmail.com
+                  </a>
                 </div>
-                <div className="font-display font-bold text-base text-white">{siteConfig.contact.email}</div>
-                <div className="font-mono text-xs text-slate-400">Proposals &amp; Contracts</div>
+                <div className="pt-2 border-t border-white/5">
+                  <div className="text-[10px] text-[#A5A5A0]">Strategy &amp; Inquiries:</div>
+                  <a href="mailto:sh2005.akhilesh@gmail.com" className="text-[#F5F4F0] hover:text-[#C5F36A]">
+                    sh2005.akhilesh@gmail.com
+                  </a>
+                </div>
               </div>
             </div>
 
-            {/* Location & Hours Card */}
-            <div className="p-6 rounded-3xl bg-[#0c0e12]/80 border border-white/10 backdrop-blur-md space-y-4">
+            {/* Location & Hours */}
+            <div className="p-6 rounded-none bg-[#191B1D] border border-white/10 fast-ease space-y-4">
               <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-[#d4ff00]" />
+                <MapPin className="w-5 h-5 text-[#C5F36A]" />
                 <span className="font-mono text-xs text-slate-300">{siteConfig.contact.city}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-[#e6c687]" />
+                <Clock className="w-5 h-5 text-[#D1D5DB]" />
                 <span className="font-mono text-xs text-slate-300">{siteConfig.contact.workingHours}</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: High-Conversion Consultation Form (7 cols) */}
+          {/* Right Column: Consultation Form */}
           <div className="lg:col-span-7">
-            <div className="p-8 sm:p-10 rounded-3xl bg-[#0c0e12]/90 border border-white/15 backdrop-blur-xl shadow-2xl relative">
+            <div className="p-8 sm:p-10 rounded-none bg-[#191B1D] border border-white/15 shadow-2xl relative">
               {submitted ? (
                 <div className="py-12 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-[#d4ff00]/10 border border-[#d4ff00]/30 flex items-center justify-center mx-auto text-[#d4ff00]">
+                  <div className="w-16 h-16 rounded-none bg-[#C5F36A]/10 border border-[#C5F36A]/30 flex items-center justify-center mx-auto text-[#C5F36A]">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h3 className="font-display font-black text-2xl text-white">
+                  <h3 className="font-display font-black text-2xl text-[#F5F4F0]">
                     Consultation Request Formatted
                   </h3>
-                  <p className="text-sm text-slate-300 max-w-md mx-auto">
-                    Your request has been routed directly to founders Kaushal Sharma &amp; Akhilesh Sharma on WhatsApp.
+                  <p className="text-sm text-[#A5A5A0] max-w-md mx-auto">
+                    Your request has been routed directly to founders Kaushal Sharma &amp; Akhilesh Sharma on WhatsApp (+91 9389463924).
                   </p>
                   <button
                     type="button"
@@ -195,7 +215,7 @@ export default function ContactSection() {
                         objectives: "",
                       });
                     }}
-                    className="mt-4 px-6 py-2.5 rounded-full border border-white/20 text-xs font-mono uppercase tracking-wider text-slate-300 hover:text-white hover:border-white transition-colors"
+                    className="mt-4 px-6 py-2.5 rounded-none border border-white/20 text-xs font-mono uppercase tracking-wider text-[#A5A5A0] hover:text-[#F5F4F0] hover:border-white fast-ease"
                   >
                     Submit Another Request
                   </button>
@@ -203,14 +223,13 @@ export default function ContactSection() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6 font-mono text-xs">
-                    <span className="text-slate-400 uppercase tracking-widest">Consultation Blueprint Form</span>
-                    <span className="text-[#d4ff00]">Response Within 24h</span>
+                    <span className="text-[#A5A5A0] uppercase tracking-widest">[ Consultation Blueprint Form ]</span>
+                    <span className="text-[#C5F36A]">Response Within 24h</span>
                   </div>
 
-                  {/* Full Name & Phone */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-mono text-xs text-slate-300 uppercase tracking-wider mb-2">
+                      <label className="block font-mono text-xs text-[#A5A5A0] uppercase tracking-wider mb-2">
                         Full Name *
                       </label>
                       <input
@@ -218,8 +237,8 @@ export default function ContactSection() {
                         placeholder="e.g. Dr. Ramesh Sharma"
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        className={`w-full px-4 py-3 rounded-xl bg-white/[0.04] border text-white text-sm focus:outline-none transition-colors ${
-                          errors.fullName ? "border-red-500" : "border-white/10 focus:border-[#d4ff00]"
+                        className={`w-full px-4 py-3 rounded-none bg-[#101112] border text-[#F5F4F0] text-sm focus:outline-none fast-ease ${
+                          errors.fullName ? "border-red-500" : "border-white/15 focus:border-[#C5F36A]"
                         }`}
                       />
                       {errors.fullName && (
@@ -228,16 +247,16 @@ export default function ContactSection() {
                     </div>
 
                     <div>
-                      <label className="block font-mono text-xs text-slate-300 uppercase tracking-wider mb-2">
+                      <label className="block font-mono text-xs text-[#A5A5A0] uppercase tracking-wider mb-2">
                         Phone / WhatsApp *
                       </label>
                       <input
                         type="tel"
-                        placeholder="e.g. +91 98765 43210"
+                        placeholder="e.g. +91 9389463924"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className={`w-full px-4 py-3 rounded-xl bg-white/[0.04] border text-white text-sm focus:outline-none transition-colors ${
-                          errors.phone ? "border-red-500" : "border-white/10 focus:border-[#d4ff00]"
+                        className={`w-full px-4 py-3 rounded-none bg-[#101112] border text-[#F5F4F0] text-sm focus:outline-none fast-ease ${
+                          errors.phone ? "border-red-500" : "border-white/15 focus:border-[#C5F36A]"
                         }`}
                       />
                       {errors.phone && (
@@ -246,10 +265,9 @@ export default function ContactSection() {
                     </div>
                   </div>
 
-                  {/* Business Name & Category */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-mono text-xs text-slate-300 uppercase tracking-wider mb-2">
+                      <label className="block font-mono text-xs text-[#A5A5A0] uppercase tracking-wider mb-2">
                         Business Name *
                       </label>
                       <input
@@ -257,8 +275,8 @@ export default function ContactSection() {
                         placeholder="e.g. City Laser Dental Clinic"
                         value={formData.businessName}
                         onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                        className={`w-full px-4 py-3 rounded-xl bg-white/[0.04] border text-white text-sm focus:outline-none transition-colors ${
-                          errors.businessName ? "border-red-500" : "border-white/10 focus:border-[#d4ff00]"
+                        className={`w-full px-4 py-3 rounded-none bg-[#101112] border text-[#F5F4F0] text-sm focus:outline-none fast-ease ${
+                          errors.businessName ? "border-red-500" : "border-white/15 focus:border-[#C5F36A]"
                         }`}
                       />
                       {errors.businessName && (
@@ -267,16 +285,16 @@ export default function ContactSection() {
                     </div>
 
                     <div>
-                      <label className="block font-mono text-xs text-slate-300 uppercase tracking-wider mb-2">
+                      <label className="block font-mono text-xs text-[#A5A5A0] uppercase tracking-wider mb-2">
                         Industry Category
                       </label>
                       <select
                         value={formData.category}
                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-[#14171f] border border-white/10 text-white text-sm focus:outline-none focus:border-[#d4ff00] transition-colors"
+                        className="w-full px-4 py-3 rounded-none bg-[#101112] border border-white/15 text-[#F5F4F0] text-sm focus:outline-none focus:border-[#C5F36A] fast-ease"
                       >
                         {categories.map((cat, cIdx) => (
-                          <option key={cIdx} value={cat} className="bg-[#14171f] text-white">
+                          <option key={cIdx} value={cat} className="bg-[#101112] text-white">
                             {cat}
                           </option>
                         ))}
@@ -284,9 +302,8 @@ export default function ContactSection() {
                     </div>
                   </div>
 
-                  {/* Project Objectives */}
                   <div>
-                    <label className="block font-mono text-xs text-slate-300 uppercase tracking-wider mb-2">
+                    <label className="block font-mono text-xs text-[#A5A5A0] uppercase tracking-wider mb-2">
                       Project Objectives &amp; Requirements *
                     </label>
                     <textarea
@@ -294,8 +311,8 @@ export default function ContactSection() {
                       placeholder="e.g. We need a 5-page website with online appointment booking on WhatsApp and Google Maps ranking in Civil Lines."
                       value={formData.objectives}
                       onChange={(e) => setFormData({ ...formData, objectives: e.target.value })}
-                      className={`w-full px-4 py-3 rounded-xl bg-white/[0.04] border text-white text-sm focus:outline-none transition-colors ${
-                        errors.objectives ? "border-red-500" : "border-white/10 focus:border-[#d4ff00]"
+                      className={`w-full px-4 py-3 rounded-none bg-[#101112] border text-[#F5F4F0] text-sm focus:outline-none fast-ease ${
+                        errors.objectives ? "border-red-500" : "border-white/15 focus:border-[#C5F36A]"
                       }`}
                     />
                     {errors.objectives && (
@@ -303,18 +320,17 @@ export default function ContactSection() {
                     )}
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 rounded-full bg-[#d4ff00] hover:bg-white text-black font-display font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2"
+                    className="btn-sharp w-full py-4 rounded-none bg-[#C5F36A] hover:bg-[#F2F0E9] text-[#101112] font-display font-bold text-xs uppercase tracking-wider shadow-xl flex items-center justify-center gap-2"
                   >
-                    <Send className="w-4 h-4 fill-black" />
+                    <Send className="w-4 h-4 fill-[#101112]" />
                     <span>{isSubmitting ? "Dispatching..." : "Transmit Consultation Request"}</span>
                   </button>
 
-                  <p className="font-mono text-[10px] text-slate-400 text-center leading-relaxed">
-                    Direct 1-on-1 strategy session with founders Kaushal Sharma &amp; Akhilesh Sharma. 100% confidential.
+                  <p className="font-mono text-[10px] text-[#A5A5A0] text-center leading-relaxed">
+                    Direct 1-on-1 strategy session with founders Kaushal Sharma (+91 9389463924) &amp; Akhilesh Sharma (+91 7668614225).
                   </p>
                 </form>
               )}

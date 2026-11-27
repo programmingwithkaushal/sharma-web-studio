@@ -1,30 +1,32 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { siteConfig } from "@/site.config";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} | Modern Websites for Local Businesses by Kaushal Sharma & Akhilesh Sharma`,
+    default: `${siteConfig.name} — Obscura Digital Atelier | Kaushal Sharma & Akhilesh Sharma`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
   keywords: [
-    "Local Business Website Developer",
+    "Sharma Web Studio",
     "Kaushal Sharma",
     "Akhilesh Sharma",
-    "Website for Local Shop",
+    "Obscura Digital Atelier",
+    "Creative Technology Agency",
+    "Next.js Web Development",
+    "Three.js 3D Web Design",
+    "Local SEO Moradabad",
+    "High Performance Websites India",
+    "WhatsApp Lead Funnels",
     "Doctor Clinic Website",
-    "Restaurant Online Menu Website",
-    "Google Maps SEO for Business",
-    "Affordable Website Development India",
-    "Moradabad Web Design",
-    "WhatsApp Business Integration",
-    "Mobile Friendly Business Website",
+    "Restaurant Digital Menu",
   ],
   authors: [
-    { name: "Kaushal Sharma" },
-    { name: "Akhilesh Sharma" },
+    { name: "Kaushal Sharma", url: "mailto:kaushal.sharma.aiml@gmail.com" },
+    { name: "Akhilesh Sharma", url: "mailto:sh2005.akhilesh@gmail.com" },
   ],
   creator: "Sharma Web Studio",
   publisher: "Sharma Web Studio",
@@ -32,13 +34,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: siteConfig.url,
-    title: `${siteConfig.name} - We Build Websites for Local Businesses`,
+    title: `${siteConfig.name} — Obscura Digital Atelier`,
     description: siteConfig.description,
     siteName: siteConfig.name,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | High-Converting Local Business Websites`,
+    title: `${siteConfig.name} — Obscura Digital Atelier`,
     description: siteConfig.description,
   },
   robots: {
@@ -77,6 +79,8 @@ export default function RootLayout({
       "@type": "Person",
       "name": f.name,
       "jobTitle": f.role,
+      "email": f.email,
+      "telephone": f.phone,
     })),
     "priceRange": "₹₹",
     "openingHours": "Mo-Sa 09:00-20:00",
@@ -88,7 +92,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -97,8 +101,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased min-h-screen bg-[#060709] text-slate-100 flex flex-col selection:bg-[#d4ff00] selection:text-black font-sans">
-        {children}
+      <body className="antialiased min-h-screen bg-[#F7F8F9] dark:bg-[#101112] text-[#101112] dark:text-[#F5F4F0] flex flex-col selection:bg-[#C5F36A] selection:text-[#101112] font-sans transition-colors duration-200">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

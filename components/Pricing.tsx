@@ -2,7 +2,7 @@
 
 import { siteConfig } from "@/site.config";
 import { formatINR } from "@/lib/utils";
-import { Check, MessageCircle, ArrowUpRight, Sparkles } from "lucide-react";
+import { Check, MessageCircle, Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 
 export default function Pricing() {
@@ -76,21 +76,19 @@ export default function Pricing() {
   return (
     <section id="pricing" className="py-28 px-6 sm:px-12 relative z-10 border-t border-white/10 select-none">
       <div className="max-w-6xl mx-auto">
-        {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-[#d4ff00] text-xs font-semibold mb-4 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#d4ff00]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-none bg-[#191B1D] border border-white/10 text-[#C5F36A] font-mono text-[10px] uppercase tracking-widest mb-4">
+            <span className="w-1.5 h-1.5 bg-[#C5F36A]" />
             <span>Section 12 // Investment Packages</span>
           </div>
-          <h2 className="font-display text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase leading-tight">
+          <h2 className="font-display text-3xl sm:text-5xl font-extrabold text-[#F5F4F0] tracking-tight uppercase leading-tight">
             Transparent Studio Pricing
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+          <p className="mt-4 text-sm sm:text-base text-[#A5A5A0] leading-relaxed font-normal">
             No surprise add-ons. No monthly licensing traps. You own your code and domain 100%.
           </p>
         </div>
 
-        {/* 3 Packages Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {plans.map((plan) => {
             const planMessage = encodeURIComponent(
@@ -102,58 +100,58 @@ export default function Pricing() {
             return (
               <motion.div
                 key={plan.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
-                className={`p-8 sm:p-10 rounded-3xl flex flex-col justify-between transition-all backdrop-blur-xl relative ${
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className={`p-8 sm:p-10 rounded-none flex flex-col justify-between fast-ease relative ${
                   plan.popular
-                    ? "bg-[#14171f]/95 border-2 border-[#d4ff00] shadow-[0_20px_60px_-15px_rgba(212,255,0,0.15)] lg:-translate-y-2"
-                    : "bg-[#0c0e12]/80 border border-white/10 hover:border-white/20"
+                    ? "bg-[#191B1D] border-2 border-[#C5F36A] shadow-[0_20px_60px_-15px_rgba(197,243,106,0.15)] lg:-translate-y-2"
+                    : "bg-[#191B1D] border border-white/10 hover:border-white/30"
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#d4ff00] text-black font-display font-bold text-[10px] uppercase tracking-wider shadow-lg flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 fill-black" />
-                    <span>Recommended Choice</span>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-none bg-[#C5F36A] text-[#101112] font-mono font-bold text-[9px] uppercase tracking-wider shadow-lg flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 fill-[#101112]" />
+                    <span>[ Recommended Choice ]</span>
                   </div>
                 )}
 
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-4">
-                    <span className="font-mono text-xs text-slate-400 uppercase tracking-widest">
+                    <span className="font-mono text-xs text-[#A5A5A0] uppercase tracking-widest">
                       {plan.badge}
                     </span>
-                    <span className="font-mono text-[11px] text-[#e6c687]">
+                    <span className="font-mono text-[11px] text-[#C5F36A]">
                       {plan.deliveryTime}
                     </span>
                   </div>
 
-                  <h3 className="font-display font-black text-2xl text-white mb-2 tracking-tight">
+                  <h3 className="font-display font-black text-2xl text-[#F5F4F0] mb-2 tracking-tight">
                     {plan.name}
                   </h3>
 
                   <div className="mb-6">
-                    <div className="font-display font-black text-4xl text-white tracking-tight">
+                    <div className="font-display font-black text-4xl text-[#F5F4F0] tracking-tight">
                       {formatINR(plan.price)}
                     </div>
-                    <div className="font-mono text-[11px] text-slate-400 mt-1">
+                    <div className="font-mono text-[11px] text-[#A5A5A0] mt-1">
                       {plan.milestone}
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed font-normal mb-6 pb-6 border-b border-white/10">
-                    <strong className="text-white font-medium">Best for: </strong>
+                  <p className="text-xs text-[#A5A5A0] leading-relaxed font-normal mb-6 pb-6 border-b border-white/10">
+                    <strong className="text-[#F5F4F0] font-medium">Best for: </strong>
                     {plan.bestFor}
                   </p>
 
                   <div className="space-y-3 mb-8">
-                    <div className="font-mono text-xs text-slate-400 uppercase tracking-wider">
+                    <div className="font-mono text-xs text-[#A5A5A0] uppercase tracking-wider">
                       Included Deliverables:
                     </div>
                     {plan.features.map((feat, fIdx) => (
                       <div key={fIdx} className="flex items-start gap-2.5 text-xs text-slate-200">
-                        <Check className="w-4 h-4 text-[#d4ff00] shrink-0 mt-0.5" />
+                        <Check className="w-4 h-4 text-[#C5F36A] shrink-0 mt-0.5" />
                         <span className="leading-snug">{feat}</span>
                       </div>
                     ))}
@@ -161,18 +159,18 @@ export default function Pricing() {
                 </div>
 
                 <div>
-                  <div className="py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 font-mono text-[11px] text-slate-300 mb-6 text-center">
+                  <div className="py-3 px-4 rounded-none bg-white/[0.03] border border-white/10 font-mono text-[11px] text-slate-300 mb-6 text-center">
                     {plan.support}
                   </div>
 
                   <a
-                    href={`https://wa.me/${siteConfig.contact.whatsapp.replace(/\+/g, "")}?text=${planMessage}`}
+                    href={`https://wa.me/919389463924?text=${planMessage}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`w-full py-4 rounded-full font-display font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+                    className={`btn-sharp w-full py-4 rounded-none font-display font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 ${
                       plan.popular
-                        ? "bg-[#d4ff00] text-black hover:bg-white shadow-xl"
-                        : "bg-white text-black hover:bg-[#d4ff00]"
+                        ? "bg-[#C5F36A] text-[#101112] hover:bg-[#F2F0E9] shadow-xl"
+                        : "bg-[#F2F0E9] text-[#101112] hover:bg-[#C5F36A]"
                     }`}
                   >
                     <MessageCircle className="w-4 h-4" />
