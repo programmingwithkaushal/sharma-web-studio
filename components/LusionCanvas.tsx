@@ -60,7 +60,6 @@ export default function LusionCanvas() {
     container.appendChild(renderer.domElement);
 
     // 2. Dense Spider Web Topology
-    // Concentric rings & radial spokes configuration
     const SPOKES_COUNT = 44; // Dense radial spokes
     const RINGS_COUNT = 38;  // Dense concentric rings
     const TOTAL_NODES = SPOKES_COUNT * RINGS_COUNT;
@@ -69,11 +68,13 @@ export default function LusionCanvas() {
     const MIN_RADIUS = 0.35;
     const MAX_RADIUS = 6.8;
 
-    // Store base positions, current positions, and velocities for spring physics
+    // Store base positions, current positions, velocities, radii and angles
     const basePositions = new Float32Array(TOTAL_NODES * 3);
     const currentPositions = new Float32Array(TOTAL_NODES * 3);
     const velocities = new Float32Array(TOTAL_NODES * 3);
     const nodeColors = new Float32Array(TOTAL_NODES * 3);
+    const nodeRadii = new Float32Array(TOTAL_NODES);
+    const nodeAngles = new Float32Array(TOTAL_NODES);
 
     let isLightMode = document.documentElement.classList.contains("light");
 
@@ -85,7 +86,6 @@ export default function LusionCanvas() {
 
     // Initialize Web Nodes
     for (let ring = 0; ring < RINGS_COUNT; ring++) {
-      // Exponential distribution for natural dense center and expanding perimeter
       const ringProgress = ring / (RINGS_COUNT - 1);
       const radius = MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * Math.pow(ringProgress, 1.15);
 
@@ -93,7 +93,7 @@ export default function LusionCanvas() {
         const index = ring * SPOKES_COUNT + spoke;
         const baseAngle = (spoke / SPOKES_COUNT) * Math.PI * 2;
         
-        // Subtle natural organic irregularity in spider silk threads
+        // Natural organic irregularity in spider silk threads
         const angleJitter = Math.sin(ring * 2.5 + spoke * 1.8) * 0.025;
         const angle = baseAngle + angleJitter;
         const radiusJitter = (Math.sin(spoke * 4.2) * 0.03 + Math.cos(ring * 3.1) * 0.02) * radius;
@@ -101,7 +101,6 @@ export default function LusionCanvas() {
 
         const x = HUB_X + Math.cos(angle) * r;
         const y = HUB_Y + Math.sin(angle) * r;
-        // Natural resting sag: outer perimeter is slightly elevated, inner center sags slightly
         const z = -Math.pow(1.0 - ringProgress, 1.8) * 0.45;
 
         const i3 = index * 3;
@@ -117,6 +116,9 @@ export default function LusionCanvas() {
         velocities[i3 + 1] = 0;
         velocities[i3 + 2] = 0;
 
+        nodeRadii[index] = r;
+        nodeAngles[index] = angle;
+
         const c = isLightMode
           ? (ring % 3 === 0 ? lightNodeColor : lightNodeDim)
           : (ring % 3 === 0 ? darkNodeColor : darkNodeDim);
@@ -126,10 +128,10 @@ export default function LusionCanvas() {
       }
     }
 
-    // 3. Build Web Lines (Radial Spokes + Concentric Ring Chords + Spiral Cross Threads)
+    // 3. Build Web Lines (Radial Spokes + Concentric Ring Chords + Auxiliary Cross Threads)
     const lineIndices: number[] = [];
 
-    // A. Radial spoke connections (connecting ring to ring+1 along same spoke)
+    // A. Radial spoke connections
     for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
       for (let ring = 0; ring < RINGS_COUNT - 1; ring++) {
         const i1 = ring * SPOKES_COUNT + spoke;
@@ -138,7 +140,7 @@ export default function LusionCanvas() {
       }
     }
 
-    // B. Concentric ring chords (connecting spoke to (spoke+1)%SPOKES_COUNT on same ring)
+    // B. Concentric ring chords
     for (let ring = 0; ring < RINGS_COUNT; ring++) {
       for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
         const nextSpoke = (spoke + 1) % SPOKES_COUNT;
@@ -148,7 +150,7 @@ export default function LusionCanvas() {
       }
     }
 
-    // C. Auxiliary diagonal cross-fibers (gives high-density structural web texture)
+    // C. Auxiliary diagonal cross-fibers (dense structural web mesh)
     for (let ring = 1; ring < RINGS_COUNT - 1; ring += 2) {
       for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
         const nextSpoke = (spoke + 1) % SPOKES_COUNT;
@@ -159,7 +161,6 @@ export default function LusionCanvas() {
     }
 
     // 4. Three.js Geometries & Materials
-    // Line Segments Geometry
     const lineGeo = new THREE.BufferGeometry();
     lineGeo.setAttribute("position", new THREE.BufferAttribute(currentPositions, 3));
     lineGeo.setIndex(lineIndices);
@@ -189,11 +190,10 @@ export default function LusionCanvas() {
     const pointsMesh = new THREE.Points(pointsGeo, pointsMat);
     scene.add(pointsMesh);
 
-    // 5. Celestial Planet / Heavy Gravitational Focal Orb (Visual weight)
+    // 5. Celestial Planet / Heavy Gravitational Focal Orb
     const planetGroup = new THREE.Group();
     scene.add(planetGroup);
 
-    // Heavy celestial core sphere
     const planetCoreGeo = new THREE.SphereGeometry(0.18, 24, 24);
     const planetCoreMat = new THREE.MeshBasicMaterial({
       color: isLightMode ? 0x101112 : 0xc5f36a,
@@ -203,7 +203,6 @@ export default function LusionCanvas() {
     const planetCore = new THREE.Mesh(planetCoreGeo, planetCoreMat);
     planetGroup.add(planetCore);
 
-    // Gravitational Horizon Ring (visual space bend indicator)
     const ringGeo = new THREE.RingGeometry(0.24, 0.27, 32);
     const ringMat = new THREE.MeshBasicMaterial({
       color: isLightMode ? 0x30343a : 0xc5f36a,
@@ -247,7 +246,6 @@ export default function LusionCanvas() {
       for (let ring = 0; ring < RINGS_COUNT; ring++) {
         for (let spoke = 0; spoke < SPOKES_COUNT; spoke++) {
           const index = ring * SPOKES_COUNT + spoke;
-          const i3 = index * 3;
           const c = isLight
             ? (ring % 3 === 0 ? lightNodeColor : lightNodeDim)
             : (ring % 3 === 0 ? darkNodeColor : darkNodeDim);
@@ -270,15 +268,16 @@ export default function LusionCanvas() {
     const targetMouseNdc = new THREE.Vector2(0, 0);
     const planetPos = new THREE.Vector3(0, 0, -0.8);
     const targetPlanetPos = new THREE.Vector3(0, 0, -0.8);
-    let isMouseOnScreen = false;
+    let userInteracted = false;
+    let lastMouseMoveTime = 0;
 
-    // Raycaster to project mouse onto the web plane at Z = 0
     const raycaster = new THREE.Raycaster();
     const planeZ0 = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
     const planeIntersectPoint = new THREE.Vector3();
 
     const handleMouseMove = (e: MouseEvent) => {
-      isMouseOnScreen = true;
+      userInteracted = true;
+      lastMouseMoveTime = performance.now();
       targetMouseNdc.x = (e.clientX / window.innerWidth) * 2 - 1;
       targetMouseNdc.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
@@ -287,14 +286,12 @@ export default function LusionCanvas() {
       if (planeIntersectPoint) {
         targetPlanetPos.x = planeIntersectPoint.x;
         targetPlanetPos.y = planeIntersectPoint.y;
-        // As it moves, the heavy planet sinks deeper into the spacetime sheet
         targetPlanetPos.z = -0.95;
       }
     };
 
     const handleMouseLeave = () => {
-      isMouseOnScreen = false;
-      targetPlanetPos.set(0, 0, 4.0); // retract off-screen smoothly
+      userInteracted = false;
     };
 
     // Scroll Tracking
@@ -322,19 +319,36 @@ export default function LusionCanvas() {
     window.addEventListener("resize", handleResize);
     handleScroll();
 
-    // 8. Animation & Elastic Spacetime Deformation Loop
+    // 8. Animation & Continuous Organic Motion Loop
     let animationFrameId: number;
     const clock = new THREE.Clock();
 
-    const GRAVITY_RADIUS = 2.9;   // Range of gravitational well around planet
-    const GRAVITY_DEPTH = 2.1;    // Maximum spacetime sag depth (Z depression)
-    const LATERAL_PULL = 0.42;    // Inward lateral tension pull towards planet center
+    const GRAVITY_RADIUS = 3.0;   // Range of gravitational well around planet
+    const GRAVITY_DEPTH = 2.15;   // Maximum spacetime sag depth (Z depression)
+    const LATERAL_PULL = 0.44;    // Inward lateral tension pull towards planet center
     const SPRING_K = 0.14;        // Elastic web tension spring stiffness
-    const DAMPING = 0.84;         // Viscous air & silk thread damping (creates realistic recoil wave)
+    const DAMPING = 0.84;         // Viscous air & silk thread damping
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
+      const now = performance.now();
+
+      // Check if mouse is idle (no motion for > 1.2s or user hasn't touched mouse)
+      const isMouseIdle = !userInteracted || (now - lastMouseMoveTime > 1200);
+
+      if (isMouseIdle) {
+        // Continuous organic autonomous wander of the celestial planet across the web!
+        // Creates a wandering gravitational indentation and ripple wake even when mouse is not moving
+        const orbitX = HUB_X + Math.cos(elapsedTime * 0.75) * 1.6 + Math.sin(elapsedTime * 1.3) * 0.5;
+        const orbitY = HUB_Y + Math.sin(elapsedTime * 0.65) * 1.3 + Math.cos(elapsedTime * 1.5) * 0.4;
+        targetPlanetPos.x += (orbitX - targetPlanetPos.x) * 0.05;
+        targetPlanetPos.y += (orbitY - targetPlanetPos.y) * 0.05;
+        targetPlanetPos.z = -0.95;
+
+        targetMouseNdc.x = (targetPlanetPos.x / 4.0);
+        targetMouseNdc.y = (targetPlanetPos.y / 3.0);
+      }
 
       // Smooth scroll lerp
       scrollProgress += (targetScrollProgress - scrollProgress) * 0.08;
@@ -343,32 +357,46 @@ export default function LusionCanvas() {
       mouseNdc.x += (targetMouseNdc.x - mouseNdc.x) * 0.08;
       mouseNdc.y += (targetMouseNdc.y - mouseNdc.y) * 0.08;
 
-      planetPos.x += (targetPlanetPos.x - planetPos.x) * 0.12;
-      planetPos.y += (targetPlanetPos.y - planetPos.y) * 0.12;
-      planetPos.z += (targetPlanetPos.z - planetPos.z) * 0.12;
+      planetPos.x += (targetPlanetPos.x - planetPos.x) * 0.10;
+      planetPos.y += (targetPlanetPos.y - planetPos.y) * 0.10;
+      planetPos.z += (targetPlanetPos.z - planetPos.z) * 0.10;
 
       // Update celestial planet position & orbital ring wobble
       planetGroup.position.copy(planetPos);
       horizonRing.rotation.z = elapsedTime * 1.5;
       horizonRing.rotation.x = Math.sin(elapsedTime * 2.0) * 0.25;
 
-      // Camera tilt based on scroll and mouse for panoramic depth
-      camera.position.x = mouseNdc.x * 0.4;
-      camera.position.y = mouseNdc.y * 0.3 - scrollProgress * 1.8;
+      // Dynamic camera panoramic tilt
+      camera.position.x = mouseNdc.x * 0.35;
+      camera.position.y = mouseNdc.y * 0.25 - scrollProgress * 1.8;
       camera.lookAt(0, -scrollProgress * 1.5, 0);
 
-      // Compute Spacetime Physics on All Web Nodes
+      // Compute Continuous Wave Motion & Spacetime Physics on All Web Nodes
       const posAttr = lineGeo.attributes.position as THREE.BufferAttribute;
       const posArray = posAttr.array as Float32Array;
 
-      // Subtle ambient silk breathing wave across the web
-      const ambientWave = Math.sin(elapsedTime * 1.2) * 0.04;
-
       for (let i = 0; i < TOTAL_NODES; i++) {
         const i3 = i * 3;
-        const bx = basePositions[i3];
-        const by = basePositions[i3 + 1];
-        const bz = basePositions[i3 + 2] + ambientWave;
+        const r = nodeRadii[i];
+        const theta = nodeAngles[i];
+
+        // 🌊 CONTINUOUS MULTI-HARMONIC SILK MOTION (ALWAYS IN MOTION)
+        // 1. Traveling radial ripple from hub outward
+        const radialWave = Math.sin(elapsedTime * 2.5 - r * 2.2) * 0.22;
+        // 2. Angular twisting shear wave
+        const angularWave = Math.cos(elapsedTime * 1.8 + theta * 3.0) * 0.16;
+        // 3. High-frequency silk tremor
+        const tremor = Math.sin(elapsedTime * 5.2 + r * 3.6 + theta * 2.0) * 0.045;
+        // 4. Lateral sway (X and Y breathing)
+        const lateralSwayX = Math.sin(elapsedTime * 1.5 + r * 1.3) * 0.075 * (r / MAX_RADIUS);
+        const lateralSwayY = Math.cos(elapsedTime * 1.3 + theta * 2.0) * 0.075 * (r / MAX_RADIUS);
+
+        const totalWaveZ = radialWave + angularWave + tremor;
+
+        // Base with continuous undulating waves applied
+        const bx = basePositions[i3] + lateralSwayX;
+        const by = basePositions[i3 + 1] + lateralSwayY;
+        const bz = basePositions[i3 + 2] + totalWaveZ;
 
         let curX = posArray[i3];
         let curY = posArray[i3 + 1];
@@ -384,32 +412,30 @@ export default function LusionCanvas() {
         const distSq = dx * dx + dy * dy;
         const dist = Math.sqrt(distSq);
 
-        // Target displaced position (base by default)
         let targetX = bx;
         let targetY = by;
         let targetZ = bz;
 
         // Gravitational Depression (Space Bend with Planet)
-        if (isMouseOnScreen && dist < GRAVITY_RADIUS && planetPos.z < 2.0) {
+        if (dist < GRAVITY_RADIUS && planetPos.z < 2.0) {
           const normDist = dist / GRAVITY_RADIUS;
-          // Gaussian spacetime curvature well
           const well = Math.exp(-normDist * normDist * 3.2);
 
-          // 1. Z-Depth sag: Web severely funnels downward into 3D depth under the planet's mass
+          // Z-depth funnel sag
           targetZ = bz - well * GRAVITY_DEPTH;
 
-          // 2. Inward lateral tension: Surrounding fibers are sucked inward toward the center of gravity
+          // Inward lateral tension
           const pullFactor = well * LATERAL_PULL;
           targetX = bx + dx * pullFactor;
           targetY = by + dy * pullFactor;
         }
 
-        // Spring acceleration towards target equilibrium
+        // Spring acceleration
         const ax = (targetX - curX) * SPRING_K;
         const ay = (targetY - curY) * SPRING_K;
         const az = (targetZ - curZ) * SPRING_K;
 
-        // Velocity integration with silk tension damping
+        // Velocity integration
         vx = (vx + ax) * DAMPING;
         vy = (vy + ay) * DAMPING;
         vz = (vz + az) * DAMPING;
@@ -430,7 +456,6 @@ export default function LusionCanvas() {
       posAttr.needsUpdate = true;
       (pointsGeo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
 
-      // Dust subtle drift
       dustPoints.rotation.y = elapsedTime * 0.02;
 
       renderer.render(scene, camera);
