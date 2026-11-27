@@ -1,146 +1,118 @@
 "use client";
 
-import { XCircle, CheckCircle2, Sparkles, ArrowRight, ShieldAlert, Zap, Globe, TrendingUp } from "lucide-react";
-import LiquidCard from "./LiquidCard";
+import { motion } from "motion/react";
+import { AlertCircle, CheckCircle, ShieldCheck, Flame, Lock, Globe } from "lucide-react";
 
 export default function WhyWebsite() {
-  const socialPitfalls = [
+  const comparisons = [
     {
-      title: "Zero Google Search & Maps Presence",
-      desc: "When urgent customers search 'best clinic near me' or 'catering in civil lines', social media posts rarely index. You lose ready-to-pay clients directly to competitors.",
+      dimension: "Search Visibility",
+      social: "Hidden behind walled apps. Invisible to high-intent Google searches for local services.",
+      website: "Indexed on Google Search & Google Maps. Visible to neighborhood buyers actively ready to purchase.",
     },
     {
-      title: "Vanishes into the Algorithm Void",
-      desc: "Stories disappear in 24 hours. Organic posts reach only 5% of your followers unless you spend money on daily boosted ads.",
+      dimension: "Customer Ownership",
+      social: "The platform owns your followers. You must pay increasing ad fees to reach your own audience.",
+      website: "100% direct customer database. Direct WhatsApp chats, phone calls, and email relationships belong to you.",
     },
     {
-      title: "Extortionate Aggregator Commissions",
-      desc: "Delivery apps and booking platforms quietly siphon 20% to 35% commission out of every customer you serve.",
+      dimension: "Direct Inquiries",
+      social: "Buried in unorganized Instagram DMs with spammers, bots, and distractions.",
+      website: "Streamlined 1-click WhatsApp booking with pre-filled customer details and service requirements.",
     },
     {
-      title: "Zero Ownership of Your Customer Base",
-      desc: "You rent your audience on social platforms. An arbitrary algorithm tweak or account suspension can extinguish your reach overnight.",
-    },
-  ];
-
-  const studioAdvantages = [
-    {
-      title: "Prime Digital Real Estate on Google",
-      desc: "We engineer structured Schema.org data and local citation signals so nearby searchers find your direct phone, directions, and hours first.",
+      dimension: "Digital Brand Identity",
+      social: "Constrained to identical template grids with competing ads displayed right beneath your products.",
+      website: "Bespoke, distraction-free digital experience reflecting premium craftsmanship and exclusive authority.",
     },
     {
-      title: "Direct WhatsApp Funnels (0% Commission)",
-      desc: "Every appointment, table booking, or catalog inquiry routes instantly to your personal phone. You retain 100% of your earnings.",
+      dimension: "Business Independence",
+      social: "Vulnerable to sudden algorithm updates, policy shifts, account suspensions, or shadowbans.",
+      website: "Permanent digital real estate hosted on global cloud infrastructure that you control completely.",
     },
     {
-      title: "24/7 Silent Sales Machine",
-      desc: "Your digital showroom works through the night—educating potential clients, displaying transparent pricing, and capturing qualified leads.",
-    },
-    {
-      title: "Compounding Brand Equity",
-      desc: "Your custom domain is permanent business property. Over time, your Google domain authority and customer reviews continuously increase in value.",
+      dimension: "Long-Term Value",
+      social: "Posts expire in 24-48 hours. Requires continuous daily content creation just to remain visible.",
+      website: "An enduring commercial asset that compounds domain authority and generates inquiries 24/7.",
     },
   ];
 
   return (
-    <section id="why-website" className="py-24 relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+    <section id="why-website" className="py-28 px-6 sm:px-12 relative z-10 border-t border-white/10 select-none">
+      <div className="max-w-6xl mx-auto">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-cyan-300 text-xs font-semibold mb-4 backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>The Strategic Perspective</span>
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-[#d4ff00] text-xs font-semibold mb-4 backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#d4ff00]" />
+            <span>Section 07 // Strategic Comparison</span>
           </div>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-            Social Media is Rented Ground. <br className="hidden sm:inline" />
-            <span className="text-aurora">A Website is Your Digital Property.</span>
+          <h2 className="font-display text-3xl sm:text-5xl font-extrabold text-white tracking-tight uppercase leading-tight">
+            Social Media is Rented Ground. <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-[#e6c687]">
+              A Website is Your Digital Property.
+            </span>
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto">
-            Most local businesses operate under the illusion that an Instagram handle or WhatsApp status is
-            sufficient. Here is why market leaders invest in permanent Google infrastructure.
+          <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
+            Building your entire commercial presence solely on Instagram or WhatsApp status is like constructing
+            a luxury showroom on leased land where the landlord controls the locks.
           </p>
         </div>
 
-        {/* Comparison Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-          {/* Left: The Ephemeral Social Trap */}
-          <LiquidCard glowColor="rgba(239, 68, 68, 0.12)" className="p-7 sm:p-9 border-red-500/20 bg-[#090b14]/70">
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                <div className="flex items-center gap-3.5 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red-400 shrink-0">
-                    <ShieldAlert className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-red-400 block">The Rented Platform</span>
-                    <h3 className="font-display text-xl font-bold text-white">Social Media Alone</h3>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {socialPitfalls.map((item, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl bg-white/[0.02] border border-red-500/15">
-                      <div className="flex items-start gap-3">
-                        <XCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-white mb-1">{item.title}</h4>
-                          <p className="text-xs text-slate-400 leading-relaxed">{item.desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+        {/* Split Screen Matrix */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          {/* Rented Social Media Platform */}
+          <div className="p-8 sm:p-10 rounded-3xl bg-[#0c0e12]/80 border border-red-500/20 backdrop-blur-md">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-red-400" />
               </div>
-
-              <div className="mt-8 pt-4 border-t border-red-500/20 text-xs text-red-300/80 italic font-medium">
-                Consequence: Up to 70% of high-intent Google searchers land on your competitors&apos; websites.
+              <div>
+                <h3 className="font-display font-bold text-xl text-white">Rented Social Media</h3>
+                <p className="font-mono text-xs text-red-400">Instagram, Facebook &amp; Third-Party Apps</p>
               </div>
             </div>
-          </LiquidCard>
 
-          {/* Right: The Sharma Web Studio Standard */}
-          <LiquidCard glowColor="rgba(56, 189, 248, 0.2)" className="p-7 sm:p-9 border-cyan-400/30 bg-[#080d1d]/80 shadow-2xl">
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                <div className="flex items-center gap-3.5 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex items-center justify-center text-cyan-300 shrink-0">
-                    <Globe className="w-6 h-6" />
+            <div className="space-y-6">
+              {comparisons.map((item, idx) => (
+                <div key={idx} className="pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                  <div className="font-mono text-xs text-slate-400 uppercase tracking-wider mb-1">
+                    {item.dimension}
                   </div>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 block">The Owned Asset</span>
-                    <h3 className="font-display text-xl font-bold text-white">Sharma Web Studio Platform</h3>
-                  </div>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    {item.social}
+                  </p>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                <div className="space-y-4">
-                  {studioAdvantages.map((item, idx) => (
-                    <div key={idx} className="p-4 rounded-2xl bg-white/[0.03] border border-cyan-400/20 hover:border-cyan-400/40 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-white mb-1">{item.title}</h4>
-                          <p className="text-xs text-slate-300 leading-relaxed">{item.desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {/* Owned Digital Infrastructure */}
+          <div className="p-8 sm:p-10 rounded-3xl bg-[#0c0e12]/80 border border-[#d4ff00]/30 backdrop-blur-md relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#d4ff00]/10 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10 relative z-10">
+              <div className="w-10 h-10 rounded-xl bg-[#d4ff00]/10 border border-[#d4ff00]/20 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-[#d4ff00]" />
               </div>
-
-              <div className="mt-8 pt-4 border-t border-cyan-400/20 flex items-center justify-between">
-                <span className="text-xs text-emerald-300 font-bold flex items-center gap-1.5 font-mono">
-                  <TrendingUp className="w-4 h-4" /> 300% Avg Lead Multiplier
-                </span>
-                <a
-                  href="#pricing"
-                  className="text-xs font-bold text-cyan-300 hover:text-white transition-colors flex items-center gap-1"
-                >
-                  <span>Explore Packages</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </a>
+              <div>
+                <h3 className="font-display font-bold text-xl text-white">Owned Digital Property</h3>
+                <p className="font-mono text-xs text-[#d4ff00]">Your Dedicated Domain &amp; Web Infrastructure</p>
               </div>
             </div>
-          </LiquidCard>
+
+            <div className="space-y-6 relative z-10">
+              {comparisons.map((item, idx) => (
+                <div key={idx} className="pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                  <div className="font-mono text-xs text-[#d4ff00] uppercase tracking-wider mb-1 font-semibold">
+                    {item.dimension}
+                  </div>
+                  <p className="text-sm text-slate-200 leading-relaxed font-normal">
+                    {item.website}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

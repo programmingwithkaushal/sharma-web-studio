@@ -1,38 +1,67 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 export default function LusionCanvas() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [webGLSupported, setWebGLSupported] = useState(true);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Scene & Camera
+    // Check WebGL availability
+    const checkWebGL = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        return !!(
+          window.WebGLRenderingContext &&
+          (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+        );
+      } catch {
+        return false;
+      }
+    };
+
+    if (!checkWebGL()) {
+      setWebGLSupported(false);
+      return;
+    }
+
+    // Check user preference for reduced motion
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Scene & Perspective Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      45,
+      42,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
-    camera.position.z = 6;
+    camera.position.z = 5.8;
 
     // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance",
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+      });
+    } catch {
+      setWebGLSupported(false);
+      return;
+    }
+
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
 
-    // Vertex Shader with 3D Simplex-like Perlin Noise for Organic Fluid Morphing
+    // Vertex Shader: Precision 3D Simplex noise for futuristic architectural morphing
     const vertexShader = `
       uniform float uTime;
       uniform vec2 uMouse;
@@ -42,7 +71,7 @@ export default function LusionCanvas() {
       varying vec2 vUv;
       varying float vDisplacement;
 
-      // Classic Perlin 3D Noise
+      // Efficient 3D Noise Implementation
       vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
       vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
 
@@ -93,16 +122,16 @@ export default function LusionCanvas() {
         vUv = uv;
         vNormal = normalize(normalMatrix * normal);
         
-        // Liquid morphing physics
-        vec3 coords = normal * 1.5;
-        float noise = snoise(coords + vec3(uTime * 0.35));
-        noise += 0.5 * snoise(coords * 2.0 - vec3(uTime * 0.4));
+        // Fluid architectural sculpture displacement
+        vec3 coords = normal * 1.6;
+        float noise = snoise(coords + vec3(uTime * 0.28));
+        noise += 0.45 * snoise(coords * 2.2 - vec3(uTime * 0.32));
         
-        // Mouse distance ripple
+        // Dynamic mouse wave interaction
         float mouseDist = length(uv - (uMouse * 0.5 + 0.5));
-        float mouseRipple = sin(mouseDist * 12.0 - uTime * 4.0) * 0.08 * exp(-mouseDist * 3.0);
+        float mouseRipple = sin(mouseDist * 14.0 - uTime * 3.5) * 0.07 * exp(-mouseDist * 3.2);
         
-        float displacement = (noise * 0.45 + mouseRipple) * uMorphIntensity;
+        float displacement = (noise * 0.42 + mouseRipple) * uMorphIntensity;
         vDisplacement = displacement;
         
         vec3 newPosition = position + normal * displacement;
@@ -112,7 +141,7 @@ export default function LusionCanvas() {
       }
     `;
 
-    // Fragment Shader: Lusion's Iridescent Liquid Chrome & Velvet Reflections
+    // Fragment Shader: High-End Obsidian Chrome with Champagne Sheen and Electric-Lime Accents
     const fragmentShader = `
       uniform float uTime;
       varying vec3 vNormal;
@@ -121,39 +150,50 @@ export default function LusionCanvas() {
       varying float vDisplacement;
 
       void main() {
-        // Fresnel rim glow
-        vec3 viewDirection = normalize(cameraPosition - vPosition);
-        float fresnel = 1.0 - max(0.0, dot(viewDirection, vNormal));
-        fresnel = pow(fresnel, 2.5);
+        // View angle and Fresnel rim illumination
+        vec3 viewDir = normalize(cameraPosition - vPosition);
+        float fresnel = 1.0 - max(0.0, dot(viewDir, vNormal));
+        fresnel = pow(fresnel, 2.8);
 
-        // Iridescent chromatic dispersion
-        vec3 colorCyan = vec3(0.05, 0.75, 0.95);
-        vec3 colorViolet = vec3(0.45, 0.15, 0.85);
-        vec3 colorGold = vec3(0.95, 0.78, 0.35);
-        vec3 colorDeepNavy = vec3(0.02, 0.04, 0.09);
+        // Core Architectural Palette: Deep Obsidian to Platinum Chrome
+        vec3 colorObsidian = vec3(0.024, 0.027, 0.035);   // #060709
+        vec3 colorCharcoal = vec3(0.078, 0.090, 0.122);   // #14171F
+        vec3 colorPlatinum = vec3(0.88, 0.90, 0.94);      // Polished metal
+        vec3 colorChampagne = vec3(0.90, 0.78, 0.53);     // #E6C687 luxury gold
+        vec3 colorElectricLime = vec3(0.83, 1.0, 0.0);    // #D4FF00 signature accent
 
-        // Blend based on displacement & normal angle
-        float t = vDisplacement * 1.8 + sin(uTime * 0.5 + vPosition.y * 1.5) * 0.5;
-        vec3 iridescent = mix(colorCyan, colorViolet, smoothstep(-0.4, 0.4, t));
-        iridescent = mix(iridescent, colorGold, smoothstep(0.2, 0.8, fresnel));
+        // Spatial curvature blend
+        float t = vDisplacement * 1.6 + sin(uTime * 0.4 + vPosition.y * 1.8) * 0.4;
+        vec3 metallicBase = mix(colorCharcoal, colorPlatinum, smoothstep(-0.35, 0.45, t));
 
-        // Specular highlight
-        vec3 lightDir = normalize(vec3(2.0, 4.0, 3.0));
-        vec3 halfVector = normalize(lightDir + viewDirection);
-        float NdotH = max(0.0, dot(vNormal, halfVector));
-        float specular = pow(NdotH, 64.0) * 1.4;
+        // Subtle champagne & electric-lime metallic reflection highlights
+        vec3 reflectiveSheen = mix(metallicBase, colorChampagne, smoothstep(0.15, 0.75, fresnel));
+        reflectiveSheen = mix(reflectiveSheen, colorElectricLime, smoothstep(0.78, 0.98, fresnel) * 0.35);
 
-        vec3 finalColor = mix(colorDeepNavy, iridescent, fresnel * 0.85 + 0.15);
-        finalColor += vec3(specular);
+        // Dual Key Light Specular Highlights
+        vec3 keyLight1 = normalize(vec3(2.5, 4.5, 3.5));
+        vec3 halfVector1 = normalize(keyLight1 + viewDir);
+        float NdotH1 = max(0.0, dot(vNormal, halfVector1));
+        float specular1 = pow(NdotH1, 72.0) * 1.6;
 
-        // Alpha falloff for smooth ethereal transparency into pure black
-        float alpha = smoothstep(0.0, 0.9, fresnel * 0.8 + 0.35);
+        vec3 keyLight2 = normalize(vec3(-3.0, -2.0, 2.0));
+        vec3 halfVector2 = normalize(keyLight2 + viewDir);
+        float NdotH2 = max(0.0, dot(vNormal, halfVector2));
+        float specular2 = pow(NdotH2, 36.0) * 0.5;
 
-        gl_FragColor = vec4(finalColor, alpha * 0.88);
+        // Final Composite: Obsidian core + Metallic Reflection + Specular
+        vec3 finalColor = mix(colorObsidian, reflectiveSheen, fresnel * 0.88 + 0.12);
+        finalColor += vec3(specular1) * colorPlatinum;
+        finalColor += vec3(specular2) * colorChampagne * 0.6;
+
+        // Smooth falloff into deep obsidian background
+        float alpha = smoothstep(0.0, 0.92, fresnel * 0.85 + 0.38);
+
+        gl_FragColor = vec4(finalColor, alpha * 0.92);
       }
     `;
 
-    // Create 3D Fluid Liquid Geometry & ShaderMaterial
+    // 3D Sculpture Geometry: High-Density Icosahedron
     const geometry = new THREE.IcosahedronGeometry(1.85, 64);
     const material = new THREE.ShaderMaterial({
       vertexShader,
@@ -161,42 +201,42 @@ export default function LusionCanvas() {
       uniforms: {
         uTime: { value: 0 },
         uMouse: { value: new THREE.Vector2(0, 0) },
-        uMorphIntensity: { value: 1.0 },
+        uMorphIntensity: { value: prefersReducedMotion ? 0.3 : 1.0 },
       },
       transparent: true,
       blending: THREE.NormalBlending,
       side: THREE.DoubleSide,
     });
 
-    const fluidSphere = new THREE.Mesh(geometry, material);
-    fluidSphere.position.set(0, 0, 0);
-    scene.add(fluidSphere);
+    const sculptureMesh = new THREE.Mesh(geometry, material);
+    sculptureMesh.position.set(0, 0, 0);
+    scene.add(sculptureMesh);
 
-    // Ambient floating particles around the liquid sphere
-    const particleCount = 200;
+    // Floating Obsidian/Chrome dust particles
+    const particleCount = 180;
     const particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 10;
-      positions[i + 1] = (Math.random() - 0.5) * 8;
-      positions[i + 2] = (Math.random() - 0.5) * 8;
+      positions[i] = (Math.random() - 0.5) * 11;
+      positions[i + 1] = (Math.random() - 0.5) * 8.5;
+      positions[i + 2] = (Math.random() - 0.5) * 8.5;
     }
 
     particleGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     const particleMaterial = new THREE.PointsMaterial({
-      color: 0x38bdf8,
-      size: 0.025,
+      color: 0xd4ff00,
+      size: 0.022,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.45,
       blending: THREE.AdditiveBlending,
     });
 
     const particles = new THREE.Points(particleGeometry, particleMaterial);
     scene.add(particles);
 
-    // Mouse Tracking with smooth spring damping
-    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    // Mouse Tracking with Inertial Damping
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let isDragging = false;
     let prevMousePos = { x: 0, y: 0 };
 
@@ -207,8 +247,8 @@ export default function LusionCanvas() {
       if (isDragging) {
         const deltaX = e.clientX - prevMousePos.x;
         const deltaY = e.clientY - prevMousePos.y;
-        fluidSphere.rotation.y += deltaX * 0.005;
-        fluidSphere.rotation.x += deltaY * 0.005;
+        sculptureMesh.rotation.y += deltaX * 0.005;
+        sculptureMesh.rotation.x += deltaY * 0.005;
         prevMousePos = { x: e.clientX, y: e.clientY };
       }
     };
@@ -223,6 +263,7 @@ export default function LusionCanvas() {
     };
 
     const handleResize = () => {
+      if (!renderer || !camera) return;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -233,31 +274,32 @@ export default function LusionCanvas() {
     window.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("resize", handleResize);
 
-    // Animation Loop
-    let clock = new THREE.Clock();
+    // Animation Render Loop
     let animationFrameId: number;
+    let clock = new THREE.Clock();
 
     const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      // Damped mouse follow
+      // Update uniforms
+      material.uniforms.uTime.value = elapsedTime;
+
+      // Smooth mouse follow with spring interpolation
       mouse.x += (mouse.targetX - mouse.x) * 0.04;
       mouse.y += (mouse.targetY - mouse.y) * 0.04;
-
-      material.uniforms.uTime.value = elapsedTime;
       material.uniforms.uMouse.value.set(mouse.x, mouse.y);
 
-      // Subtle organic rotation
-      if (!isDragging) {
-        fluidSphere.rotation.y = elapsedTime * 0.15 + mouse.x * 0.6;
-        fluidSphere.rotation.x = Math.sin(elapsedTime * 0.1) * 0.2 - mouse.y * 0.4;
+      // Idle environmental rotation
+      if (!isDragging && !prefersReducedMotion) {
+        sculptureMesh.rotation.y = elapsedTime * 0.12 + mouse.x * 0.4;
+        sculptureMesh.rotation.x = Math.sin(elapsedTime * 0.15) * 0.15 + mouse.y * 0.3;
       }
 
-      particles.rotation.y = elapsedTime * 0.03;
-      particles.rotation.x = elapsedTime * 0.02;
+      particles.rotation.y = elapsedTime * 0.025;
+      particles.rotation.x = elapsedTime * 0.015;
 
       renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
@@ -269,7 +311,7 @@ export default function LusionCanvas() {
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("resize", handleResize);
 
-      if (container && renderer.domElement) {
+      if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
       geometry.dispose();
@@ -281,10 +323,23 @@ export default function LusionCanvas() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 pointer-events-auto z-0 overflow-hidden cursor-grab active:cursor-grabbing"
-      aria-hidden="true"
-    />
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {/* 3D WebGL Canvas Layer */}
+      <div
+        ref={containerRef}
+        className="w-full h-full cursor-grab active:cursor-grabbing pointer-events-auto"
+        aria-hidden="true"
+      />
+
+      {/* Non-WebGL Fallback Mesh */}
+      {!webGLSupported && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-charcoal via-metallic to-charcoal border border-white/10 blur-[80px] opacity-60 animate-pulse-glow" />
+        </div>
+      )}
+
+      {/* Subtle obsidian cinematic vignette */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(6,7,9,0.7)_80%,rgba(6,7,9,0.98)_100%)]" />
+    </div>
   );
 }
